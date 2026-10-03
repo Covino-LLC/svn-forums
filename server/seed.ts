@@ -1,10 +1,51 @@
 import { storage } from "./storage";
+import { loadSeedPlants } from "./seed-plants";
+import { generateHeuristicScore } from "./scoring/alpha-omega-lens";
 
 export function seedDatabase() {
   // Check if data already exists
   const existingUsers = storage.getAllUsers();
   if (existingUsers.length > 0) return;
 
+  // Demo data (fictional users and plants) is for local development only.
+  if (process.env.SVN_DEMO_SEED === "true") return seedDemoData();
+  return seedProvingGrounds();
+}
+
+/**
+ * Seed the live Proving Grounds with the research-backed plants in
+ * docs/seed-plants (plants 1-20), planted by a single steward account.
+ */
+function seedProvingGrounds() {
+  const plants = loadSeedPlants();
+  const steward = storage.createUser({
+    username: "svn_stewards",
+    email: "contact@ammoncovino.com",
+    tier: 1,
+    energy: 8,
+    createdAt: new Date().toISOString(),
+  });
+
+  const now = Date.now();
+  plants.forEach((p, idx) => {
+    const aiScore = generateHeuristicScore(p.content);
+    storage.createPlant({
+      userId: steward.id,
+      title: p.title,
+      content: p.content,
+      biome: p.biome,
+      energy: 0,
+      aiScore: JSON.stringify(aiScore),
+      status: "growing",
+      // Keep plant order: plant 1 oldest, plant 20 newest.
+      createdAt: new Date(now - (plants.length - idx) * 60_000).toISOString(),
+    });
+  });
+
+  console.log(`Seeded Proving Grounds: ${plants.length} seed plants`);
+}
+
+function seedDemoData() {
   console.log("Seeding database with demo data...");
 
   // Create users at different tiers
