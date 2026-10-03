@@ -222,3 +222,9 @@ The Proving Grounds doesn't solve these problems by declaring an opinion the win
 No one gets to win by being louder. No one gets to hide behind "that's just my opinion." The lens sees through it. The energy mechanics enforce it.
 
 This is what the SVN was built for.
+
+---
+
+## MORE PLANTS
+
+Plants 11–20 (the ten issues Americans rank highest in 2026: money in politics, health care, inflation, the deficit, housing, overdoses, gun deaths, violent crime, immigration processing, AI and jobs) are in [plants-11-20.md](plants-11-20.md).
