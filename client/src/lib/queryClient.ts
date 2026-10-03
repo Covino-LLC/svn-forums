@@ -1,6 +1,10 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
+// API calls follow the app's base path, so under ammoncovino.com/forums they go
+// to /forums/api/... (the site proxy strips /forums before SVN sees them).
+const API_BASE = "__PORT_5000__".startsWith("__")
+  ? import.meta.env.BASE_URL.replace(/\/$/, "")
+  : "__PORT_5000__";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {

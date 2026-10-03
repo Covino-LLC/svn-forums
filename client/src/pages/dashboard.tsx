@@ -21,7 +21,7 @@ export default function Dashboard() {
   // Check URL for biome param
   const urlParams = new URLSearchParams(window.location.hash.split("?")[1] || "");
   const biomeFromUrl = urlParams.get("biome");
-  const [selectedBiome, setSelectedBiome] = useState(biomeFromUrl || "plot");
+  const [selectedBiome, setSelectedBiome] = useState(biomeFromUrl || "biosphere");
 
   useEffect(() => {
     if (biomeFromUrl) setSelectedBiome(biomeFromUrl);
