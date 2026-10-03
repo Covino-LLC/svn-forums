@@ -7,6 +7,21 @@ import { evaluationInputSchema } from "./scoring/schema";
 
 export async function registerRoutes(server: Server, app: Express) {
   // ===== USERS =====
+  // ===== READ-ONLY PREVIEW =====
+  // With SVN_READ_ONLY=true the Proving Grounds can be read but not changed.
+  // Planting, joining and consuming stay closed until per-session human
+  // verification exists (one verified human per action; no bots).
+  const readOnly = process.env.SVN_READ_ONLY === "true";
+  app.get("/api/config", (_req, res) => res.json({ readOnly }));
+  if (readOnly) {
+    app.post(["/api/plants", "/api/contributions", "/api/evaluate"], (_req, res) => {
+      res.status(403).json({
+        message:
+          "The Proving Grounds is in read-only preview. Planting and joining open once human verification is live.",
+      });
+    });
+  }
+
   app.get("/api/users", (_req, res) => {
     const allUsers = storage.getAllUsers();
     res.json(allUsers);

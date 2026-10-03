@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import { eq, desc, and } from "drizzle-orm";
 
-const sqlite = new Database("svn.db");
+const sqlite = new Database(process.env.SVN_DB_PATH || "svn.db");
 const db = drizzle(sqlite);
 
 export interface IStorage {
