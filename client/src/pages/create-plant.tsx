@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/lib/user-context";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Sprout, TreePine, Trees, Globe, Zap, ArrowRight, AlertCircle } from "lucide-react";
 
@@ -62,7 +62,7 @@ export default function CreatePlant() {
   const remainingEnergy = (currentUser?.energy || 0) - cost;
 
   const plantMutation = useMutation({
-    mutationFn: async (data: { userId: number; title: string; content: string; biome: string }) => {
+    mutationFn: async (data: { title: string; content: string; biome: string }) => {
       const res = await apiRequest("POST", "/api/plants", data);
       return res.json();
     },
@@ -89,7 +89,6 @@ export default function CreatePlant() {
     e.preventDefault();
     if (!currentUser || !title.trim() || !content.trim()) return;
     plantMutation.mutate({
-      userId: currentUser.id,
       title: title.trim(),
       content: content.trim(),
       biome: selectedBiome,
@@ -104,6 +103,12 @@ export default function CreatePlant() {
           Every plant costs energy to establish. Choose your biome wisely.
         </p>
       </div>
+
+      {!currentUser && (
+        <p className="text-sm text-muted-foreground mb-4" data-testid="text-login-to-plant">
+          <Link href="/login" className="underline">Log in or sign up</Link> to plant an idea.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}

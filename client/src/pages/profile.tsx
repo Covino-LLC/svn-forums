@@ -73,7 +73,7 @@ export default function Profile() {
   if (!currentUser) {
     return (
       <div className="p-6 text-center">
-        <p className="text-sm text-muted-foreground">Loading profile...</p>
+        <p className="text-sm text-muted-foreground"><Link href="/login" className="underline">Log in or sign up</Link> to see your profile.</p>
       </div>
     );
   }

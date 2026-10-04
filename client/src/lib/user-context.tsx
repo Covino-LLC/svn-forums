@@ -1,47 +1,42 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { User } from "@shared/schema";
 import { apiRequest } from "./queryClient";
 
+// The signed-in account (null when browsing anonymously). Identity comes from the
+// server session cookie; the client never tells the server who it is.
+type SessionUser = Omit<User, "passwordHash"> | null;
+
 interface UserContextType {
-  currentUser: User | null;
-  setCurrentUserId: (id: number) => void;
-  currentUserId: number;
+  currentUser: SessionUser;
   refreshUser: () => void;
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType>({
   currentUser: null,
-  setCurrentUserId: () => {},
-  currentUserId: 1,
   refreshUser: () => {},
+  logout: async () => {},
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [currentUserId, setCurrentUserId] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data: currentUser } = useQuery<User>({
-    queryKey: ["/api/users", currentUserId],
-    queryFn: async () => {
-      const res = await apiRequest("GET", `/api/users/${currentUserId}`);
-      return res.json();
-    },
+  const { data: currentUser } = useQuery<SessionUser>({
+    queryKey: ["/api/auth/me"],
   });
 
   const refreshUser = () => {
-    queryClient.invalidateQueries({ queryKey: ["/api/users", currentUserId] });
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+  };
+
+  const logout = async () => {
+    await apiRequest("POST", "/api/auth/logout");
+    queryClient.setQueryData(["/api/auth/me"], null);
   };
 
   return (
-    <UserContext.Provider
-      value={{
-        currentUser: currentUser ?? null,
-        setCurrentUserId,
-        currentUserId,
-        refreshUser,
-      }}
-    >
+    <UserContext.Provider value={{ currentUser: currentUser ?? null, refreshUser, logout }}>
       {children}
     </UserContext.Provider>
   );

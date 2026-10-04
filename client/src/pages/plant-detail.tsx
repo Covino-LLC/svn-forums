@@ -168,7 +168,7 @@ export default function PlantDetail() {
   });
 
   const contributeMutation = useMutation({
-    mutationFn: async (data: { plantId: number; userId: number; content: string; type: string }) => {
+    mutationFn: async (data: { plantId: number; content: string; type: string }) => {
       const res = await apiRequest("POST", "/api/contributions", data);
       return res.json();
     },
@@ -195,7 +195,6 @@ export default function PlantDetail() {
     if (!currentUser || !contributionContent.trim()) return;
     contributeMutation.mutate({
       plantId,
-      userId: currentUser.id,
       content: contributionContent.trim(),
       type: contributionType,
     });
@@ -302,6 +301,12 @@ export default function PlantDetail() {
       <div className="mb-6">
         <AIScorePanel aiScore={aiScore} />
       </div>
+
+      {!isComposted && !currentUser && (
+        <p className="text-sm text-muted-foreground mb-6" data-testid="text-login-to-contribute">
+          <Link href="/login" className="underline">Log in or sign up</Link> to contribute to this plant.
+        </p>
+      )}
 
       {/* Contribution form */}
       {!isComposted && currentUser && (

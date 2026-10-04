@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import PlantDetail from "@/pages/plant-detail";
 import CreatePlant from "@/pages/create-plant";
 import Profile from "@/pages/profile";
+import Auth from "@/pages/auth";
 import NotFound from "@/pages/not-found";
 import { UserProvider, useUser } from "@/lib/user-context";
 import { Zap } from "lucide-react";
@@ -35,6 +36,7 @@ function AppRouter() {
       <Route path="/plant/:id" component={PlantDetail} />
       <Route path="/create" component={CreatePlant} />
       <Route path="/profile" component={Profile} />
+      <Route path="/login" component={Auth} />
       <Route component={NotFound} />
     </Switch>
   );
