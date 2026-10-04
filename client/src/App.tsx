@@ -21,7 +21,10 @@ function EnergyDisplay() {
   if (!currentUser) return null;
   return (
     <div className="flex items-center gap-2">
-      <Badge variant="outline" className="gap-1 text-amber-500 dark:text-amber-400 border-amber-500/30">
+      <Badge
+        variant="outline"
+        className="gap-1 text-amber-500 dark:text-amber-400 border-amber-500/30"
+      >
         <Zap className="w-3 h-3" />
         <span data-testid="text-energy-header">{currentUser.energy}</span>
       </Badge>
@@ -49,22 +52,22 @@ function AppContent() {
   };
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <AppSidebar />
-        <div className="flex flex-col flex-1 min-w-0">
-          <header className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <EnergyDisplay />
-          </header>
-          <main className="flex-1 overflow-y-auto">
-            <Router hook={useHashLocation}>
+    <Router hook={useHashLocation}>
+      <SidebarProvider style={style as React.CSSProperties}>
+        <div className="flex h-screen w-full">
+          <AppSidebar />
+          <div className="flex flex-col flex-1 min-w-0">
+            <header className="flex items-center justify-between px-4 py-2 border-b border-border/50">
+              <SidebarTrigger data-testid="button-sidebar-toggle" />
+              <EnergyDisplay />
+            </header>
+            <main className="flex-1 overflow-y-auto">
               <AppRouter />
-            </Router>
-          </main>
+            </main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </Router>
   );
 }
 
