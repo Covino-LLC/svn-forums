@@ -1,7 +1,7 @@
 import { users, plants, contributions, type User, type InsertUser, type Plant, type InsertPlant, type Contribution, type InsertContribution } from "@shared/schema";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 const sqlite = new Database(process.env.SVN_DB_PATH || "svn.db");
 const db = drizzle(sqlite);
@@ -10,6 +10,7 @@ export interface IStorage {
   // Users
   getUser(id: number): User | undefined;
   getUserByUsername(username: string): User | undefined;
+  getUserByEmail(email: string): User | undefined;
   getAllUsers(): User[];
   createUser(user: InsertUser): User;
   updateUserEnergy(id: number, energy: number): void;
@@ -64,6 +65,11 @@ export class SqliteStorage implements IStorage {
         created_at TEXT NOT NULL
       );
     `);
+    // Accounts were added after launch: seeded users have no password and cannot log in.
+    const cols = sqlite.prepare("PRAGMA table_info(users)").all() as { name: string }[];
+    if (!cols.some((c) => c.name === "password_hash")) {
+      sqlite.exec("ALTER TABLE users ADD COLUMN password_hash TEXT");
+    }
   }
 
   getUser(id: number): User | undefined {
@@ -72,6 +78,10 @@ export class SqliteStorage implements IStorage {
 
   getUserByUsername(username: string): User | undefined {
     return db.select().from(users).where(eq(users.username, username)).get();
+  }
+
+  getUserByEmail(email: string): User | undefined {
+    return db.select().from(users).where(sql`lower(${users.email}) = ${email.toLowerCase()}`).get();
   }
 
   getAllUsers(): User[] {

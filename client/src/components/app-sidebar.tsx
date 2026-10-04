@@ -15,9 +15,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useUser } from "@/lib/user-context";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-import type { User as UserType } from "@shared/schema";
 
 const tierNames: Record<number, string> = { 1: "Seedling", 2: "Sapling", 3: "Established", 4: "Canopy" };
 const tierIcons: Record<number, typeof Sprout> = { 1: Sprout, 2: TreePine, 3: Trees, 4: Globe };
@@ -69,11 +66,8 @@ function SVNLogo() {
 
 export function AppSidebar() {
   const [location] = useLocation();
-  const { currentUser, setCurrentUserId, currentUserId } = useUser();
+  const { currentUser, logout } = useUser();
 
-  const { data: allUsers } = useQuery<UserType[]>({
-    queryKey: ["/api/users"],
-  });
 
   const TierIcon = currentUser ? tierIcons[currentUser.tier] || Sprout : Sprout;
 
@@ -91,29 +85,18 @@ export function AppSidebar() {
 
       <SidebarSeparator />
 
-      {/* User switcher for prototype */}
-      {allUsers && allUsers.length > 0 && (
-        <div className="px-3 py-2">
-          <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1 block">
-            Active User
-          </label>
-          <Select
-            value={String(currentUserId)}
-            onValueChange={(val) => setCurrentUserId(parseInt(val))}
-          >
-            <SelectTrigger className="h-8 text-xs" data-testid="select-user-switcher">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {allUsers.map((u) => (
-                <SelectItem key={u.id} value={String(u.id)} data-testid={`select-user-${u.id}`}>
-                  {u.username} ({tierNames[u.tier]})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+      <div className="px-3 py-2">
+        {currentUser ? (
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium truncate" data-testid="text-username">{currentUser.username}</span>
+            <button type="button" className="text-muted-foreground underline" onClick={logout} data-testid="button-logout">Log out</button>
+          </div>
+        ) : (
+          <Link href="/login" className="block text-center rounded-md bg-primary text-primary-foreground text-xs font-medium py-2" data-testid="link-login">
+            Sign up / Log in
+          </Link>
+        )}
+      </div>
 
       {/* Energy display */}
       {currentUser && (
