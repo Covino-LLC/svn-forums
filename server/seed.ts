@@ -5,7 +5,7 @@ import { generateHeuristicScore } from "./scoring/alpha-omega-lens";
 export function seedDatabase() {
   // Check if data already exists
   const existingUsers = storage.getAllUsers();
-  if (existingUsers.length > 0) return;
+  if (existingUsers.length > 0) return addLatePlants();
 
   // Demo data (fictional users and plants) is for local development only.
   if (process.env.SVN_DEMO_SEED === "true") return seedDemoData();
@@ -43,6 +43,34 @@ function seedProvingGrounds() {
   });
 
   console.log(`Seeded Proving Grounds: ${plants.length} seed plants`);
+}
+
+/**
+ * Plants numbered above 20 were written after the forum launched. Add any
+ * that are missing (matched by title) to a running forum, planted by the
+ * steward account, without touching anything already in the database.
+ */
+export const FIRST_LATE_PLANT = 21;
+
+export function addLatePlants() {
+  if (process.env.SVN_DEMO_SEED === "true") return;
+  const steward = storage.getUserByUsername("svn_stewards");
+  if (!steward) return;
+  const titles = new Set(storage.getAllPlants().map((p) => p.title));
+  const late = loadSeedPlants().filter((p) => p.number >= FIRST_LATE_PLANT && !titles.has(p.title));
+  for (const p of late) {
+    storage.createPlant({
+      userId: steward.id,
+      title: p.title,
+      content: p.content,
+      biome: p.biome,
+      energy: 0,
+      aiScore: JSON.stringify(generateHeuristicScore(p.content)),
+      status: "growing",
+      createdAt: new Date().toISOString(),
+    });
+  }
+  if (late.length) console.log(`Added ${late.length} late seed plant(s)`);
 }
 
 function seedDemoData() {
