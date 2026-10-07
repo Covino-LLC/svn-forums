@@ -8,7 +8,7 @@ export interface SeedPlant {
   content: string;
 }
 
-const SEED_FILES = ["README.md", "plants-11-20.md"];
+const SEED_FILES = ["README.md", "plants-11-20.md", "plants-21.md"];
 
 function toBiome(label: string): SeedPlant["biome"] {
   const l = label.toLowerCase();
