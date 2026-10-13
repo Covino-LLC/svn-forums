@@ -23,6 +23,7 @@ export interface IStorage {
   createPlant(plant: InsertPlant): Plant;
   updatePlantEnergy(id: number, energy: number): void;
   updatePlantStatus(id: number, status: string): void;
+  updatePlantOwner(id: number, userId: number): void;
 
   // Contributions
   getContributionsByPlant(plantId: number): Contribution[];
@@ -123,6 +124,10 @@ export class SqliteStorage implements IStorage {
 
   updatePlantStatus(id: number, status: string): void {
     db.update(plants).set({ status }).where(eq(plants.id, id)).run();
+  }
+
+  updatePlantOwner(id: number, userId: number): void {
+    db.update(plants).set({ userId }).where(eq(plants.id, id)).run();
   }
 
   // Contributions
