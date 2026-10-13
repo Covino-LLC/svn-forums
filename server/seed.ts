@@ -5,7 +5,11 @@ import { generateHeuristicScore } from "./scoring/alpha-omega-lens";
 export function seedDatabase() {
   // Check if data already exists
   const existingUsers = storage.getAllUsers();
-  if (existingUsers.length > 0) return addLatePlants();
+  if (existingUsers.length > 0) {
+    addLatePlants();
+    reassignStewardPlants();
+    return;
+  }
 
   // Demo data (fictional users and plants) is for local development only.
   if (process.env.SVN_DEMO_SEED === "true") return seedDemoData();
@@ -52,9 +56,34 @@ function seedProvingGrounds() {
  */
 export const FIRST_LATE_PLANT = 21;
 
-export function addLatePlants() {
+/** Ammon's own account plants new late plants and owns the seed plants. */
+export const PLANT_OWNER = "ammoncovino";
+const LAST_STEWARD_PLANT = 21;
+
+/**
+ * One-time move (safe to run on every start): seed plants 1-21 still owned
+ * by svn_stewards move to PLANT_OWNER. Matched by seed title; plants owned by
+ * anyone else are never touched. Comments and energy stay with the plant.
+ */
+export function reassignStewardPlants() {
   if (process.env.SVN_DEMO_SEED === "true") return;
   const steward = storage.getUserByUsername("svn_stewards");
+  const owner = storage.getUserByUsername(PLANT_OWNER);
+  if (!steward || !owner) return;
+  const titles = new Set(loadSeedPlants().filter((p) => p.number <= LAST_STEWARD_PLANT).map((p) => p.title));
+  let moved = 0;
+  for (const p of storage.getAllPlants()) {
+    if (p.userId === steward.id && titles.has(p.title)) {
+      storage.updatePlantOwner(p.id, owner.id);
+      moved++;
+    }
+  }
+  if (moved) console.log(`Moved ${moved} seed plant(s) to ${PLANT_OWNER}`);
+}
+
+export function addLatePlants() {
+  if (process.env.SVN_DEMO_SEED === "true") return;
+  const steward = storage.getUserByUsername(PLANT_OWNER) ?? storage.getUserByUsername("svn_stewards");
   if (!steward) return;
   const titles = new Set(storage.getAllPlants().map((p) => p.title));
   const late = loadSeedPlants().filter((p) => p.number >= FIRST_LATE_PLANT && !titles.has(p.title));
