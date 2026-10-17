@@ -4,13 +4,9 @@ import { storage } from "./storage";
 import type { AIScore } from "@shared/schema";
 import { scorePlant, evaluatePlant } from "./scoring/alpha-omega-lens";
 import { evaluationInputSchema } from "./scoring/schema";
-import { registerAiPages } from "./ai-pages";
 import { clearSession, clientIp, hashPassword, publicUser, rateLimit, requireUser, sessionUser, setSession, verifyPassword } from "./auth";
 
 export async function registerRoutes(server: Server, app: Express) {
-  // Plain HTML posts, ai.md, llms.txt and sitemap.xml for non-JS readers.
-  registerAiPages(app);
-
   // ===== USERS =====
   // ===== READ-ONLY PREVIEW =====
   // With SVN_READ_ONLY=true the Proving Grounds can be read but not changed.
